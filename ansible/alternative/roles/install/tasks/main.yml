@@ -1,0 +1,112 @@
+---
+
+- name: Begin Configuration
+  block:
+    - name: Install Base Docker Packages
+      remote_user: bot
+      apt:
+        name: ['apt-transport-https', 'software-properties-common', 'gnupg-agent', 'ca-certificates', 'curl']
+        state: present
+        update_cache: yes
+      tags:
+        - docker
+    - name: Adding Docker's Official GPG Key
+      remote_user: bot
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+      tags:
+        - docker
+    - name: Verifying Key Fingerprint
+      remote_user: bot
+      apt_key:
+        id: 0EBFCD88
+        state: present
+      tags:
+        - docker
+    - name: Setting Up Docker Repository (Buster Stable)
+      remote_user: bot
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+        state: present
+        update_cache: yes
+      tags:
+        - docker
+    - name: Updating apt Packages
+      remote_user: bot
+      apt:
+        update_cache: yes
+      tags:
+        - docker
+    - name: Installing Docker
+      remote_user: bot
+      apt:
+        name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+        state: present
+        update_cache: yes
+      tags:
+        - docker
+    - name: Adding Remote User "bot" to Docker Group
+      remote_user: bot
+      user:
+        name: "bot"
+        group: "docker"
+        append: yes
+      tags:
+        - docker
+    - name: Set Up Docker Daemon                                                                                                                          
+      copy: 
+        src: ../ansible/roles/install/templates/daemon.json
+        dest: /etc/docker/daemon.json
+        # remote_src: yes
+        owner: bot
+    - name: Create docker.service.d
+      raw: 'mkdir -p /etc/systemd/system/docker.service.d'
+
+      notify:
+        - reload systemd
+        - restart docker
+
+     # Tasks for installing Kubernetes
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+    - name: Disable swap
+      remote_user: bot
+      command: swapoff -a
+      become: true
+      # become_user: root
+
+    - name: Add an apt signing key for Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+    - name: Adding apt repository for Kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes.list
+    - name: Updating apt Packages
+      remote_user: bot
+      apt:
+        update_cache: yes
+    - name: Install Kubernetes binaries
+      apt: 
+        name: ['kubeadm','kubelet','kubectl' ]
+        state: present
+        update_cache: yes
+    # - name: Configure node ip
+    #   lineinfile:
+    #     path: /etc/default/kubelet
+    #     line: KUBELET_EXTRA_ARGS=--node-ip=10.253.16.137
+    # - name: Restart kubelet
+    #   service:
+    #     name: kubelet
+    #     daemon_reload: yes
+    #     state: restarted
+  become: true

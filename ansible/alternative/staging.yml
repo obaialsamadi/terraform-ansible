@@ -1,0 +1,28 @@
+---
+
+  - name: Kubernetes Cluster staging environment initialization
+    hosts: all
+    remote_user: bot
+    gather_facts: no
+    pre_tasks:
+    - name: "Installing Base Dependencies"
+      block :
+      - name: 'install python'
+        raw: 'apt-get install -yq python'
+      - name: 'install sudo'
+        raw: 'apt-get install -yq sudo'
+      - name: 'install ca-certificates'
+        raw: 'apt-get install -yq ca-certificates'
+      - name: 'install unzip'
+        raw: 'apt-get install -yq unzip'
+      - name: 'install curl'
+        raw: 'apt-get install -yq curl'
+    become: true
+  - name: Kubernetes Cluster staging environment main playbooks
+    hosts: all
+    remote_user: bot
+    roles:
+      - install
+      - configure
+
+    
