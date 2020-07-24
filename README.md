@@ -11,7 +11,7 @@ might find it useful, here's what this does:
 ## NOTE
 
 While this code fulfilled the purpose of which I was asked to write the code for, I don't like it. It's not efficient and I personally think this flow is messy.
-I have another repo called `tak` in which I have Ansible do everything:
+I have another repo called `kat` in which I have Ansible do everything:
 - Ansible sets up several servers on GCP by calling a Terraform module
 - Ansible sets up docker and kubernetes
 - Ansible sets up master and worker nodes.
