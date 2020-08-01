@@ -7,7 +7,8 @@
 
 ## NOTE
 
-While this code fulfilled the purpose of which I was asked to write the code for, it's not complete. I am currently working on a version that will use Ansible to do everything:
+While this code fulfilled the purpose of which I was asked to write the code for, it's not my preferred way. 
+I am currently working on a version that will use Ansible to do everything but also use GKE:
 - Ansible sets up several servers on GCP by calling a Terraform module
 - Ansible sets up docker and kubernetes
 - Ansible sets up master and worker nodes.
